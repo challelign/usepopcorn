@@ -1,11 +1,7 @@
 import React, { useState } from "react";
 
 const Main = ({ children }) => {
-	return (
-		<div>
-			<main className="main">{children}</main>
-		</div>
-	);
+	return <main className="main">{children}</main>;
 };
 
 export default Main;
