@@ -1,12 +1,14 @@
 import NavBar from "./components/NavBar";
 import Main from "./components/Main";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Search from "./components/Search";
 import NumResults from "./components/NumResults";
 import ListBox from "./components/ListBox ";
 import MovieList from "./components/MovieList";
 import WatchedSummary from "./components/WatchedSummary";
 import WatchedMovieList from "./components/WatchedMovieList";
+import Loader from "./components/Loader";
+import ErrorMessage from "./components/ErrorMessage";
 const tempMovieData = [
 	{
 		imdbID: "tt1375666",
@@ -53,10 +55,49 @@ const tempWatchedData = [
 		userRating: 9,
 	},
 ];
+const KEY = "e4d2ab19";
 export default function App() {
 	const [movies, setMovies] = useState(tempMovieData);
 	const [watched, setWatched] = useState(tempWatchedData);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState("");
+	const query = "interstellar";
+	/* const fetchMovieDataSearch = () => {
+		fetch(`http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=interstellar`)
+			.then((res) => res.json())
+			.then((data) => setMovies(data.Search));
+	};  
+	*/
+	// the same as the above function
+	const fetchMovieDataSearch = async () => {
+		setIsLoading(true);
+		try {
+			const res = await fetch(
+				`http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`
+			);
 
+			if (!res.ok) {
+				throw new Error("Something went wrong with fetching  movies!");
+			}
+
+			const data = await res.json();
+			if (data.Response === "False") {
+				throw new Error("Movie not Found !");
+			}
+			setMovies(data.Search);
+			// console.log(movies); //this line of code is empty b/c setMovies cannot set imedatlly to we have to log like this
+			// console.log(data.Search);
+		} catch (error) {
+			console.error(error.message);
+			setError(error.message);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		fetchMovieDataSearch();
+	}, []);
 	return (
 		<>
 			<NavBar>
@@ -69,7 +110,10 @@ export default function App() {
 				{/* List Box is reusable component */}
 				{/* all are children props */}
 				<ListBox>
-					<MovieList movies={movies} />
+					{/*  only  one will run at a time */}
+					{isLoading && <Loader />}
+					{!isLoading && !error && <MovieList movies={movies} />}
+					{error && <ErrorMessage message={error} />}
 				</ListBox>
 				<ListBox>
 					<WatchedSummary watched={watched} />
