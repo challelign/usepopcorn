@@ -9,6 +9,7 @@ import WatchedSummary from "./components/WatchedSummary";
 import WatchedMovieList from "./components/WatchedMovieList";
 import Loader from "./components/Loader";
 import ErrorMessage from "./components/ErrorMessage";
+import MovieDetails from "./components/MovieDetails";
 const tempMovieData = [
 	{
 		imdbID: "tt1375666",
@@ -61,7 +62,10 @@ export default function App() {
 	const [watched, setWatched] = useState(tempWatchedData);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState("");
-	const query = "interstellar";
+	const [query, setQuery] = useState("");
+
+	const [selectedId, setSelectedId] = useState(null);
+	const tempQuery = "interstellar";
 	/* const fetchMovieDataSearch = () => {
 		fetch(`http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=interstellar`)
 			.then((res) => res.json())
@@ -70,8 +74,10 @@ export default function App() {
 	*/
 	// the same as the above function
 	const fetchMovieDataSearch = async () => {
-		setIsLoading(true);
 		try {
+			setIsLoading(true);
+			setError("");
+
 			const res = await fetch(
 				`http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`
 			);
@@ -86,7 +92,7 @@ export default function App() {
 			}
 			setMovies(data.Search);
 			// console.log(movies); //this line of code is empty b/c setMovies cannot set imedatlly to we have to log like this
-			// console.log(data.Search);
+			console.log(data.Search);
 		} catch (error) {
 			console.error(error.message);
 			setError(error.message);
@@ -95,15 +101,28 @@ export default function App() {
 		}
 	};
 
+	const handleSelectMovie = (id) => {
+		// setSelectedId(id);
+		// to make select and unselect
+		setSelectedId((selectedId) => (id === selectedId ? null : id));
+	};
+	const handleCloseMovie = () => {
+		setSelectedId(null);
+	};
 	useEffect(() => {
+		if (query.length < 3) {
+			setMovies([]);
+			setError("");
+			return;
+		}
 		fetchMovieDataSearch();
-	}, []);
+	}, [query]);
 	return (
 		<>
 			<NavBar>
 				{/*   search and numresult pass as children props */}
 
-				<Search />
+				<Search query={query} setQuery={setQuery} />
 				<NumResults movies={movies} />
 			</NavBar>
 			<Main>
@@ -112,12 +131,27 @@ export default function App() {
 				<ListBox>
 					{/*  only  one will run at a time */}
 					{isLoading && <Loader />}
-					{!isLoading && !error && <MovieList movies={movies} />}
+					{!isLoading && !error && (
+						<MovieList
+							movies={movies}
+							onSelectMovie={handleSelectMovie}
+							onCloseMovie={handleCloseMovie}
+						/>
+					)}
 					{error && <ErrorMessage message={error} />}
 				</ListBox>
 				<ListBox>
-					<WatchedSummary watched={watched} />
-					<WatchedMovieList watched={watched} />
+					{selectedId ? (
+						<MovieDetails
+							selectedId={selectedId}
+							onCloseMovie={handleCloseMovie}
+						/>
+					) : (
+						<>
+							<WatchedSummary watched={watched} />
+							<WatchedMovieList watched={watched} />
+						</>
+					)}
 				</ListBox>
 			</Main>
 		</>
