@@ -62,7 +62,7 @@ export default function App() {
 	const [watched, setWatched] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState("");
-	const [query, setQuery] = useState("inception");
+	const [query, setQuery] = useState("");
 
 	const [selectedId, setSelectedId] = useState(null);
 	const tempQuery = "interstellar";
@@ -73,13 +73,17 @@ export default function App() {
 	};  
 	*/
 	// the same as the above function
+
+	// this to remove unnecessary data being fetched while type search query
+	const controller = new AbortController();
 	const fetchMovieDataSearch = async () => {
 		try {
 			setIsLoading(true);
 			setError("");
 
 			const res = await fetch(
-				`http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`
+				`http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`,
+				{ signal: controller.signal }
 			);
 
 			if (!res.ok) {
@@ -91,11 +95,14 @@ export default function App() {
 				throw new Error("Movie not Found !");
 			}
 			setMovies(data.Search);
+			setError("");
 			// console.log(movies); //this line of code is empty b/c setMovies cannot set imedatlly to we have to log like this
 			console.log(data.Search);
 		} catch (error) {
 			console.error(error.message);
-			setError(error.message);
+			if (error.name !== "AbortError") {
+				setError(error.message);
+			}
 		} finally {
 			setIsLoading(false);
 		}
@@ -121,7 +128,11 @@ export default function App() {
 			setError("");
 			return;
 		}
+		handleCloseMovie();
 		fetchMovieDataSearch();
+		return function () {
+			controller.abort();
+		};
 	}, [query]);
 	return (
 		<>

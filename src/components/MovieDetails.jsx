@@ -67,6 +67,20 @@ const MovieDetails = ({ selectedId, onCloseMovie, onAddWatched, watched }) => {
 			document.title = "usePopcorn";
 		};
 	}, [title]);
+
+	// to listen key press
+	useEffect(() => {
+		function callback(e) {
+			if (e.code === "Escape") {
+				onCloseMovie();
+			}
+		}
+		document.addEventListener("keydown", callback);
+		// to clean up key press after removed component
+		return function () {
+			document.removeEventListener("keydown", callback);
+		};
+	}, [onCloseMovie]);
 	return (
 		<div className="details">
 			{isLoading ? (
