@@ -3,9 +3,10 @@ import StarRating from "./StarRating";
 import Loader from "./Loader";
 const KEY = "e4d2ab19";
 
-const MovieDetails = ({ selectedId, onCloseMovie }) => {
+const MovieDetails = ({ selectedId, onCloseMovie, onAddWatched, watched }) => {
 	const [movie, setMovie] = useState({});
 	const [isLoading, setIsLoading] = useState(false);
+	const [userRating, setUserRating] = useState("");
 	const {
 		Title: title,
 		Year: year,
@@ -18,6 +19,25 @@ const MovieDetails = ({ selectedId, onCloseMovie }) => {
 		Director: director,
 		Genre: genre,
 	} = movie;
+
+	const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
+	const watchedUserRating = watched.find(
+		(movie) => movie.imdbID === selectedId
+	)?.userRating;
+	// console.log(isWatched);
+	const handleAdd = () => {
+		const newWatchedMovie = {
+			imdbID: selectedId,
+			title,
+			year,
+			poster,
+			imdbRating: Number(imdbRating),
+			runtime: Number(runtime.split(" ").at(0)),
+			userRating,
+		};
+		onAddWatched(newWatchedMovie);
+		onCloseMovie();
+	};
 	const getMovieDetails = async () => {
 		try {
 			setIsLoading(true);
@@ -59,12 +79,29 @@ const MovieDetails = ({ selectedId, onCloseMovie }) => {
 								<span>⭐</span> {imdbRating}
 							</p>
 						</div>
-
-						{selectedId}
+						{/* {selectedId} */}
 					</header>
 					<section>
 						<div className="rating">
-							<StarRating maxRating={10} size={24} />
+							{!isWatched ? (
+								<>
+									<StarRating
+										maxRating={10}
+										size={24}
+										onSetRating={setUserRating}
+									/>
+
+									{userRating > 0 && (
+										<button className="btn-add" onClick={handleAdd}>
+											+ Add to List
+										</button>
+									)}
+								</>
+							) : (
+								<p>
+									You rated with movie {watchedUserRating} <span>⭐</span>
+								</p>
+							)}
 						</div>
 						<p>
 							<em>{plot}</em>

@@ -59,10 +59,10 @@ const tempWatchedData = [
 const KEY = "e4d2ab19";
 export default function App() {
 	const [movies, setMovies] = useState(tempMovieData);
-	const [watched, setWatched] = useState(tempWatchedData);
+	const [watched, setWatched] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState("");
-	const [query, setQuery] = useState("");
+	const [query, setQuery] = useState("inception");
 
 	const [selectedId, setSelectedId] = useState(null);
 	const tempQuery = "interstellar";
@@ -109,6 +109,12 @@ export default function App() {
 	const handleCloseMovie = () => {
 		setSelectedId(null);
 	};
+	const handleAddWatched = (movie) => {
+		setWatched((watched) => [...watched, movie]);
+	};
+	const handleDeleteWatched = (id) => {
+		setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
+	};
 	useEffect(() => {
 		if (query.length < 3) {
 			setMovies([]);
@@ -132,11 +138,7 @@ export default function App() {
 					{/*  only  one will run at a time */}
 					{isLoading && <Loader />}
 					{!isLoading && !error && (
-						<MovieList
-							movies={movies}
-							onSelectMovie={handleSelectMovie}
-							onCloseMovie={handleCloseMovie}
-						/>
+						<MovieList movies={movies} onSelectMovie={handleSelectMovie} />
 					)}
 					{error && <ErrorMessage message={error} />}
 				</ListBox>
@@ -145,11 +147,16 @@ export default function App() {
 						<MovieDetails
 							selectedId={selectedId}
 							onCloseMovie={handleCloseMovie}
+							onAddWatched={handleAddWatched}
+							watched={watched}
 						/>
 					) : (
 						<>
 							<WatchedSummary watched={watched} />
-							<WatchedMovieList watched={watched} />
+							<WatchedMovieList
+								watched={watched}
+								onDeleteWatched={handleDeleteWatched}
+							/>
 						</>
 					)}
 				</ListBox>
