@@ -9,15 +9,16 @@ const override = {
 
 function Loader() {
 	const [loading, setLoading] = useState(true);
-	const [color, setColor] = useState("#ffffff");
+	const [color, setColor] = useState("");
 
 	return (
 		<div className="sweet-loading">
-			<button onClick={() => setLoading(!loading)}>Toggle Loader</button>
+			<button onClick={() => setLoading(!loading)}></button>
 			<input
+				type="hidden"
 				value={color}
 				onChange={(input) => setColor(input.target.value)}
-				placeholder="Color of the loader"
+				// placeholder="Color of the loader"
 			/>
 
 			<ClipLoader
