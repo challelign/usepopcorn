@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import StarRating from "./StarRating";
 import Loader from "./Loader";
 const KEY = "e4d2ab19";
@@ -7,6 +7,16 @@ const MovieDetails = ({ selectedId, onCloseMovie, onAddWatched, watched }) => {
 	const [movie, setMovie] = useState({});
 	const [isLoading, setIsLoading] = useState(false);
 	const [userRating, setUserRating] = useState("");
+
+	// to count userRating click how many time user click to rate the movie
+	const countRef = useRef(0);
+	useEffect(() => {
+		if (userRating) {
+			countRef.current = countRef.current + 1;
+		}
+	}, [userRating]);
+
+	//
 	const {
 		Title: title,
 		Year: year,
@@ -34,6 +44,7 @@ const MovieDetails = ({ selectedId, onCloseMovie, onAddWatched, watched }) => {
 			imdbRating: Number(imdbRating),
 			runtime: Number(runtime.split(" ").at(0)),
 			userRating,
+			counterRatingDecisions: countRef.current,
 		};
 		onAddWatched(newWatchedMovie);
 		onCloseMovie();
