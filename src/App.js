@@ -10,6 +10,7 @@ import WatchedMovieList from "./components/WatchedMovieList";
 import Loader from "./components/Loader";
 import ErrorMessage from "./components/ErrorMessage";
 import MovieDetails from "./components/MovieDetails";
+import useLocalStorageState from "./components/useLocalStorageState";
 const tempMovieData = [
 	{
 		imdbID: "tt1375666",
@@ -60,12 +61,15 @@ const KEY = "e4d2ab19";
 export default function App() {
 	const [movies, setMovies] = useState(tempMovieData);
 	// const [watched, setWatched] = useState([]);
+	const [watched, setWatched] = useLocalStorageState([], "watched");
 
-	// initialize the localStorage while app start using callback function
+	// this is not working when it delete from the browser history
+	/* initialize the localStorage while app start using callback function
 	const [watched, setWatched] = useState(function () {
 		const storedValue = localStorage.getItem("watched");
 		return JSON.parse(storedValue);
 	});
+ */
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState("");
 	const [query, setQuery] = useState("");
